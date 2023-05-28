@@ -13,15 +13,8 @@
 #include <ESPmDNS.h>
 
 WebServer httpServer(80);
-// HTTPUpdateServer httpUpdater;
+HTTPUpdateServer httpUpdater;
 Preferences prefs;
-// TCP server at port 80 will respond to HTTP requests
-// WiFiServer httpServer(80);
-const int led = 13;
-
-
-void handleNotFound();
-void handleRoot();
 
 void setup()
 {
@@ -54,15 +47,7 @@ void setup()
   // Add service to MDNS-SD
   MDNS.addService("http", "tcp", 80);
 
-  
-
-  httpServer.on("/", handleRoot);
-
-  httpServer.on("/inline", []()
-                { httpServer.send(200, "text/plain", "this works as well"); });
-
-  httpServer.onNotFound(handleNotFound);
-
+  httpUpdater.setup(&httpServer);
   httpServer.begin();
   Serial.println("HTTP server started");
 
@@ -71,34 +56,10 @@ void setup()
   // retrieve();
 }
 
-void handleRoot()
-{
-  digitalWrite(led, 1);
-  httpServer.send(200, "text/plain", "hello from esp32!");
-  digitalWrite(led, 0);
-}
-
-void handleNotFound()
-{
-  digitalWrite(led, 1);
-  String message = "File Not Found\n\n";
-  message += "URI: ";
-  message += httpServer.uri();
-  message += "\nMethod: ";
-  message += (httpServer.method() == HTTP_GET) ? "GET" : "POST";
-  message += "\nArguments: ";
-  message += httpServer.args();
-  message += "\n";
-  for (uint8_t i = 0; i < httpServer.args(); i++)
-  {
-    message += " " + httpServer.argName(i) + ": " + httpServer.arg(i) + "\n";
-  }
-  httpServer.send(404, "text/plain", message);
-  digitalWrite(led, 0);
-}
 
 void loop()
 {
   httpServer.handleClient();
   delay(2); // allow the cpu to switch to other tasks
+  // log_d("new firmware");
 }
