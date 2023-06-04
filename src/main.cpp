@@ -7,44 +7,95 @@
 #include <Arduino.h>
 
 #include "Provisioner.h"
-
 #include <ESPmDNS.h>
-
-#include "config.h"
 #include "Ota.h"
-
 #include <WiFi.h>
+#include <Preferences.h>
+#include <TelnetSpy.h>
 
-// static const String otaUrl = "https://gameon.askov.net:4443/.pio/build/az-delivery-devkit-v4/firmware.bin"; // state url of your firmware image
-static const String otaUrl = "https://gameon.askov.net:8443/OTA/firmware/firmware.bin"; // state url of your firmware image
+static const String prefNamespace = "EspExplore";
 
-bool startMDNS(String host="esp32")
+
+TelnetSpy SerialAndTelnet;
+// #define SER  Serial
+#define SER SerialAndTelnet
+
+bool startMDNS(String host = "esp32")
 {
+  WiFi.setHostname(host.c_str());
   if (MDNS.begin(host))
   {
     log_i("mDNS responder started. Open http://%s.local/ in your browser\n", host);
+
+    MDNS.enableArduino();
+    MDNS.enableWorkstation();
+
+    MDNS.addService("telnet", "tcp", 23);
+
+    log_i("This host should have ip %s", MDNS.queryHost(host).toString());
+
     return true;
   }
+
   return false;
+}
+
+void setupSerial()
+{
+
+  SerialAndTelnet.setWelcomeMsg(F("Welcome to the TelnetSpy example\r\n\n"));
+
+  SerialAndTelnet.setCallbackOnConnect([]()
+                                       { SER.println(F("Telnet connection established.")); });
+
+  SerialAndTelnet.setCallbackOnDisconnect([]()
+                                          { SER.println(F("Telnet connection closed.")); });
+
+  SerialAndTelnet.setFilter(char(1),
+                            F("\r\nNVT command: AO\r\n"),
+                            []()
+                            { SerialAndTelnet.disconnectClient(); });
+
+  // Both needed to disable catching of system output
+  // SER.setDebugOutput(false);
+  // ets_install_putc1(ets_write_char_uart);
+
+  SER.begin(115200);
+  delay(100); // Wait for serial port
+
+  // SerialAndTelnet.handle();
 }
 
 void setup()
 {
-  Serial.begin(115200);
-  Serial.println();
 
-  String softAPname = "Prov123";
-  String pop = "abcd1234";
+  setupSerial();
+
+  Preferences prefs;
+  prefs.begin(prefNamespace.c_str(), false);
+
+  String softAPname = prefs.getString("provision_softAPname", "Prov123");
+  String pop = prefs.getString("provision_pop", "abcd1234");
   provisionWithSoftAP(softAPname, pop);
-  startMDNS();
-  otaUpdate(otaUrl);
 
+  String otaUrl = prefs.getString("otaUrl", "https://gameon.askov.net:8443/OTA/firmware/firmware.bin");
+  // otaUpdate(otaUrl);
+
+  String hostname = prefs.getString("hostname", WiFi.getHostname());
+  startMDNS(hostname);
+
+  prefs.end();
 }
 
 void loop()
 {
-  log_i("IP address: %s", WiFi.localIP().toString());
-  otaUpdate(otaUrl);
+  SerialAndTelnet.handle();
 
-  delay(10000);
+  log_i("IP address: %s", WiFi.localIP().toString());
+
+  // // otaUpdate(otaUrl);
+  // SER.println(F("Ready"));
+  // SER.print(F("IP address: "));
+  // SER.println(WiFi.localIP());
+  delay(1000);
 }

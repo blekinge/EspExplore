@@ -1,5 +1,3 @@
-#include <WiFi.h>
-
 #define NO_GLOBAL_HTTPUPDATE 1
 #include <HTTPClient.h>
 #include <HTTPUpdate.h>
@@ -35,28 +33,25 @@ extern const char rootCACertificate[] asm("_binary_lib_Ota_server_crt_start");
 
 void otaUpdate(String otaUrl)
 {
+  // TODO cert, username, password as params??
+
   setClock();
 
-  WiFiClientSecure client;
-
-  client.setCACert(rootCACertificate);
   log_d("certificate %s", rootCACertificate);
 
-  // Reading data over SSL may be slow, use an adequate timeout
-  client.setTimeout(120); // timeout argument is defined in seconds for setTimeout
-  client.setHandshakeTimeout(120 * 1000);
   HTTPClient http;
   http.setTimeout(30 * 1000);
   http.setConnectTimeout(120 * 1000);
-  http.begin(client, otaUrl);
-  HTTPUpdate httpUpdate = HTTPUpdate(120 * 1000);
+  http.begin(otaUrl, rootCACertificate);
+  HTTPUpdate httpUpdate(120 * 1000);
 
   httpUpdate.rebootOnUpdate(true);
 
   // t_httpUpdate_return ret = httpUpdate.update(http);
 
   String currentVersion = "currentVersion";
-  HTTPUpdateRequestCB requestCB = [](HTTPClient *client) { client->setAuthorization("username", "password"); };
+  HTTPUpdateRequestCB requestCB = [](HTTPClient *client)
+  { client->setAuthorization("username", "password"); };
   t_httpUpdate_return ret = httpUpdate.update(http, currentVersion, requestCB);
 
   switch (ret)
