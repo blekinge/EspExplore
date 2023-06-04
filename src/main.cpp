@@ -11,8 +11,12 @@
 #include <ESPmDNS.h>
 
 #include "config.h"
+#include "Ota.h"
 
 #include <WiFi.h>
+
+// static const String otaUrl = "https://gameon.askov.net:4443/.pio/build/az-delivery-devkit-v4/firmware.bin"; // state url of your firmware image
+static const String otaUrl = "https://gameon.askov.net:8443/OTA/firmware/firmware.bin"; // state url of your firmware image
 
 bool startMDNS(String host="esp32")
 {
@@ -29,15 +33,18 @@ void setup()
   Serial.begin(115200);
   Serial.println();
 
-  // startMDNS();
   String softAPname = "Prov123";
   String pop = "abcd1234";
   provisionWithSoftAP(softAPname, pop);
+  startMDNS();
+  otaUpdate(otaUrl);
+
 }
 
 void loop()
 {
   log_i("IP address: %s", WiFi.localIP().toString());
-  delay(1000);
+  otaUpdate(otaUrl);
 
+  delay(10000);
 }

@@ -1,0 +1,1 @@
+void otaUpdate(String otaUrl);

@@ -1,8 +1,10 @@
-# Provisioning
+# TODO
+
+## ~~Provisioning~~
 
 You can WIFI-provision in a number of ways
 
-## Console
+### Console
 
 From <https://github.com/espressif/esp-idf> you can get the tool `esp_prov`
 
@@ -29,3 +31,23 @@ source ~/.espressif/python_env/idf5.0_py3.11_env/bin/activate
 pip install bleak future protobuf=4.21 cryptography
 ```
 
+## ~~OTA~~
+
+Generate certificates with
+
+```bash
+openssl req -new -x509 -keyout OTAserver/src/main/resources/server.pem -out lib/Ota/server.crt -days 365 -nodes  -subj "/CN=$(hostname)"
+```
+
+Run the java (quarkus) server with `mvn quarkus:run`
+It serves the firmware file from `.pio/build/az-delivery-devkit-v4/firmware.bin`
+
+The OTA client sends current md5 and sha1. If md5 matches current file, the OTA server sends HTTP NotModified
+
+OTA server is protected with basic auth, `username@password`
+
+There are still spurious ssl timeout errors; probably related to <https://github.com/espressif/arduino-esp32/issues/7057>
+
+## <https://github.com/plerup/makeEspArduino/blob/master/README.md>
+
+## Preferences api
