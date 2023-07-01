@@ -50,6 +50,8 @@ There are still spurious ssl timeout errors; probably related to <https://github
 
 ## <https://github.com/plerup/makeEspArduino/blob/master/README.md>
 
-## Preferences api
+## ~~Preferences api~~
 
+## MDNS 
 
+## ~~Telnet Serial~~
