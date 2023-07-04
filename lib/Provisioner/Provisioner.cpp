@@ -58,7 +58,7 @@ void SysProvEvent(arduino_event_t *sys_event)
         log_d("Connected to wifi '%s'", sys_event->event_info.wifi_sta_connected.ssid);
         break;
     case ARDUINO_EVENT_WIFI_STA_GOT_IP:
-        log_d("Connected IP address : %s", IPAddress(sys_event->event_info.got_ip.ip_info.ip.addr).toString());
+        log_d("Connected IP address : %s", IPAddress(sys_event->event_info.got_ip.ip_info.ip.addr).toString().c_str());
         break;
 
     default:
@@ -78,5 +78,5 @@ void provisionWithSoftAP(String softApName, String pop)
     while (!WiFi.isConnected()){
         delay(1000);
     }
-    log_i("IP address: %s", WiFi.localIP().toString());
+    log_i("IP address: %s", WiFi.localIP().toString().c_str());
 }
