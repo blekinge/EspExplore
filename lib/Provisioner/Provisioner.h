@@ -1,1 +1,1 @@
-void provisionWithSoftAP(String softApName, String pop);
+void provisionWithSoftAP(const String& softApName, const String& pop);

@@ -66,7 +66,7 @@ void SysProvEvent(arduino_event_t *sys_event)
     }
 }
 
-void provisionWithSoftAP(String softApName, String pop)
+void provisionWithSoftAP(const String& softApName, const String& pop)
 {
     WiFi.onEvent(SysProvEvent);
     WiFiProv.beginProvision(WIFI_PROV_SCHEME_SOFTAP,

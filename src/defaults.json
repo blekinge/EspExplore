@@ -1,4 +1,11 @@
 {
+  "provision": {
+    "softAPname": "Prov123",
+    "pop": "abcd1234"
+  },
+  "ota": {
+    "url": "https://gameon.askov.net:8443/OTA/firmware/firmware.bin"
+  },
   "sensor": "gps",
   "time": 1351824120,
   "data": [
