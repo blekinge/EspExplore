@@ -1,0 +1,72 @@
+[
+  {
+    "seperator": "Wifi settings"
+  },
+  {
+    "name": "st_ssid",
+    "label": "Name for WLAN",
+    "default": ""
+  },
+  {
+    "name": "st_pass",
+    "label": "Password for WLAN",
+    "default": ""
+  },
+  {
+    "name": "host_name",
+    "label": "Host name to use for MDNS and AP<br>{mac} will be replaced with device's mac id",
+    "default": "SetupAssist_{mac}"
+  },
+  {
+    "seperator": "Application settings"
+  },
+  {
+    "name": "app_name",
+    "label": "Name your application",
+    "default": "ConfigAssist"
+  },
+  {
+    "name": "led_pin",
+    "label": "Enter the pin that the led is connected",
+    "default": "4",
+    "attribs": "min='2' max='16' step='1'"
+  },
+  {
+    "seperator": "Other settings"
+  },
+  {
+    "name": "float_val",
+    "label": "Enter a float val",
+    "default": "3.14159",
+    "attribs": "min='2.0' max='5' step='.001'"
+  },
+  {
+    "name": "debug",
+    "label": "Check to enable debug",
+    "checked": "False"
+  },
+  {
+    "name": "sensor_type",
+    "label": "Enter the sensor type",
+    "options": "'BMP280', 'DHT12', 'DHT21', 'DHT22'",
+    "default": "DHT22"
+  },
+  {
+    "name": "refresh_rate",
+    "label": "Enter the sensor update refresh rate",
+    "range": "10, 50, 1",
+    "default": "30"
+  },
+  {
+    "name": "time_zone",
+    "label": "Needs to be a valid time zone string",
+    "default": "EET-2EEST,M3.5.0/3,M10.5.0/4",
+    "datalist": "'Etc/GMT,GMT0'\n'Etc/GMT-0,GMT0'\n'Etc/GMT-1,<+01>-1'\n'Etc/GMT-2,<+02>-2'\n'Etc/GMT-3,<+03>-3'\n'Etc/GMT-4,<+04>-4'\n'Etc/GMT-5,<+05>-5'\n'Etc/GMT-6,<+06>-6'\n'Etc/GMT-7,<+07>-7'\n'Etc/GMT-8,<+08>-8'\n'Etc/GMT-9,<+09>-9'\n'Etc/GMT-10,<+10>-10'\n'Etc/GMT-11,<+11>-11'\n'Etc/GMT-12,<+12>-12'\n'Etc/GMT-13,<+13>-13'\n'Etc/GMT-14,<+14>-14'\n'Etc/GMT0,GMT0'\n'Etc/GMT+0,GMT0'\n'Etc/GMT+1,<-01>1'\n'Etc/GMT+2,<-02>2'\n'Etc/GMT+3,<-03>3'\n'Etc/GMT+4,<-04>4'\n'Etc/GMT+5,<-05>5'\n'Etc/GMT+6,<-06>6'\n'Etc/GMT+7,<-07>7'\n'Etc/GMT+8,<-08>8'\n'Etc/GMT+9,<-09>9'\n'Etc/GMT+10,<-10>10'\n'Etc/GMT+11,<-11>11'\n'Etc/GMT+12,<-12>12'"
+  },
+  {
+    "name": "cal_data",
+    "label": "Enter data for 2 Point calibration.</br>Data will be saved to /calibration.ini",
+    "file": "/calibration.ini",
+    "default": "X1=222, Y1=1.22, X2=900, Y2=3.24"
+  }
+]
