@@ -14,6 +14,8 @@
 #include <WiFi.h>
 #include <Preferences.h>
 #include <TelnetSpy.h>
+#include <ArduinoJson.h>
+
 
 static const String prefNamespace = "EspExplore";
 
@@ -62,12 +64,36 @@ void setupSerial() {
     delay(100); // Wait for serial port
 }
 
+extern const char config_default[] asm("_binary_src_defaults_json_start");
+
 void setup() {
 
     setupSerial();
 
     Preferences prefs;
     prefs.begin(prefNamespace.c_str(), false);
+
+
+    String config = prefs.getString("config");
+    if (config == NULL) {
+        prefs.putString("config", config_default);
+        config = prefs.getString("config");
+    }
+
+    DynamicJsonDocument doc(1024);
+    deserializeJson(doc, config);
+
+    const char *sensor = doc["sensor"];
+    log_i("sensor %s", sensor);
+    long time = doc["time"];
+    double latitude = doc["data"][0];
+    double longitude = doc["data"][1];
+
+    doc["sensor"].set("aps");
+    String jsonOut = "";
+    serializeJson(doc, jsonOut);
+    log_d("output json is %s", jsonOut.c_str());
+    prefs.putString("config", jsonOut);
 
     String softAPname = prefs.getString("provision_softAPname", "Prov123");
     String pop = prefs.getString("provision_pop", "abcd1234");
