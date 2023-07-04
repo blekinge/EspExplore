@@ -60,8 +60,6 @@ void setupSerial() {
 
     SER.begin(115200);
     delay(100); // Wait for serial port
-
-    // SerialAndTelnet.handle();
 }
 
 void setup() {

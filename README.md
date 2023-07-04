@@ -92,6 +92,9 @@ openssl req -new -x509 -keyout "$PWD/OTAserver/src/main/resources/ota.pem" -out 
 ```
 This generates the keyfile for the server and the `ota.crt` file for the device. This file is embedded on the device with
 `board_build.embed_txtfiles = lib/Ota/ota.crt` in `platformio.ini`
+and retrieved at runtime with
+`extern const char rootCACertificate[] asm("_binary_lib_Ota_ota_crt_start");`
+For more on this, see https://docs.platformio.org/en/latest/platforms/espressif32.html#embedding-binary-data
 
 There are still spurious ssl timeout errors; probably related to <https://github.com/espressif/arduino-esp32/issues/7057>
 
@@ -102,10 +105,76 @@ TODO Currently this is not configurable, which is an obvious problem
 ## Preferences api
 https://docs.espressif.com/projects/arduino-esp32/en/latest/api/preferences.html
 
-## MDNS 
+Preferences is an api for storing and retrieving simple values in Non-Volatile storage, i.e. permanent storage
+
+It is initialized with these simple lines
+```c++
+Preferences prefs;
+prefs.begin(prefNamespace.c_str(), false);
+```
+You can then retrieve values like 
+```c++
+String softAPname = prefs.getString("provision_softAPname", "Prov123");
+```
+The second value is the default value in case the key is not found
+
+TODO preload preferences with default values centrally
 
 ## Telnet Serial
-https://github.com/yasheena/telnetspy
+I would want to be able to debug via the serial interface, even when the device is not currently USB-connected.
+The library https://github.com/yasheena/telnetspy allows me to do so
+
+It is set up with
+```c++
+
+TelnetSpy SerialAndTelnet;
+// The SER definition controls if we use Serial or SerialAndTelnet
+// #define SER  Serial
+#define SER SerialAndTelnet
+
+void setupSerial() {
+
+    SerialAndTelnet.setWelcomeMsg(F("Welcome to the TelnetSpy example\r\n\n"));
+
+    SerialAndTelnet.setCallbackOnConnect([]() { SER.println(F("Telnet connection established.")); });
+
+    SerialAndTelnet.setCallbackOnDisconnect([]() { SER.println(F("Telnet connection closed.")); });
+
+    SerialAndTelnet.setFilter(char(1),
+                              F("\r\nNVT command: AO\r\n"),
+                              []() { SerialAndTelnet.disconnectClient(); });
+
+    // Both needed to disable catching of system output
+    // SER.setDebugOutput(false);
+    // ets_install_putc1(ets_write_char_uart);
+
+    SER.begin(115200);
+    delay(100); // Wait for serial port
+}
+```
+
+Afther the serial have been set up, you can now use it with commands like
+`SER.println("hey");`, just as you would do with the standard `Serial` class.
+
+You can now get the serial output of the device simply by connecting through Telnet
+```bash
+telnet esp32-f8ad1c.askov.net
+```
+### MDNS
+? Why do I have this
+
+### Logging
+`Arduino-espressif32` provides a better logging framework than simply printing to the terminal. Import it by
+```c++
+#ifdef ARDUINO_ARCH_ESP32
+#include "esp32-hal-log.h"
+#endif
+```
+You can now log like
+`log_i("IP address: %s", WiFi.localIP().toString().c_str());` and this will be logged as
+`[  3438][I][main.cpp:89] loop(): IP address: 192.168.2.180`
+The format is `[Timestamp since bootup in MS][LogLevel][File:line] method(): message`
+
 
 Perhaps?:
 
